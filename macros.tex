@@ -1,0 +1,115 @@
+% -*- TeX-master: "main.tex" -*-
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Trace Query Language
+
+\newcommand{\MatchRet}[2]{\textsf{match} \ #1 \ \textsf{return} \  #2}
+\newcommand{\FirstAfter}[2]{\textsf{first} \,\ #1 \ \textsf{after} \ #2}
+\newcommand{\LastBefore}[2]{\textsf{last} \,\ #1 \ \textsf{before} \ #2}
+
+\newcommand{\Time}[1]{\textsf{time}\SqPar{#1}}
+\newcommand{\Rule}[1]{\textsf{rule}\SqPar{#1}}
+\newcommand{\IntState}[3]{\textsf{int\_state}\SqPar{#1}\Par{#2, #3}}
+\newcommand{\Component}[2]{\textsf{component}\SqPar{#1}\Par{#2}}
+\newcommand{\Snapshot}[1]{\textsf{snapshot}\SqPar{#1}}
+\newcommand{\AgentId}[1]{\textsf{agent\_id}\Par{#1}}
+\newcommand{\Count}[1]{\textsf{count}\Par{#1}}
+
+
+\newcommand{\TracePat}{P}
+\newcommand{\TransPat}{T}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Semantics
+
+\newcommand{\Event}[0]{\textsf{Event}}
+\newcommand{\Transition}[0]{\textsf{Transition}}
+\newcommand{\Matching}[0]{\textsf{Matching}}
+\newcommand{\Bool}[0]{\textsf{Bool}}
+\newcommand{\Trace}[0]{\textsf{Trace}}
+\newcommand{\Value}[0]{\textsf{Value}}
+%\newcommand{\Vector}[1]{\vv{#1}}
+\newcommand{\Vector}[1]{\vec{#1}}
+\newcommand{\At}[2]{{#1}{[#2]}}
+
+\newcommand{\Ag}[0]{\,\textsf{a}}
+\newcommand{\Ev}[0]{\,\textsf{E}}
+\newcommand{\Tr}[0]{\,\textsf{t}}
+
+
+\newcommand{\Inter}{\,\cap\,}
+
+
+\newcommand{\Query}[1]{
+\ensuremath{
+\arraycolsep=5pt
+\def\arraystretch{1.4}
+\begin{array}{ll}
+#1
+}
+\end{array}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Maths
+
+\newcommand{\Par}[1]{\left(\, #1  \,\right)}
+\newcommand{\SqPar}[1]{\left[\, #1  \,\right]}
+\newcommand{\Set}[1]{\left\{\, #1  \,\right\}}
+\newcommand{\SetC}[2]{\left\{\, #1 \ | \ #2  \,\right\}}
+\newcommand{\Sem}[1]{\left\llbracket \, #1 \, \right\rrbracket}
+\newcommand{\Bag}[1]{\Lbag \, #1 \, \Rbag}
+\newcommand{\BagC}[2]{\Lbag \, #1 \ | \ #2  \,\Rbag}
+\newcommand{\m}[1]{\textsf{#1}}
+\newcommand{\OR}[0]{\ \ | \ \ }
+\newcommand{\STR}[1]{\texttt{"#1"}}
+
+\newcommand{\MultilineSetC}[3]{
+  \ensuremath{
+  \def\arraystretch{1.5}
+  \begin{array}{ll}
+    \{\, #1 \ | \ & #2 \\
+    & #3 \,\}
+  \end{array}}
+}
+
+\newcommand{\LargeMultilineSetC}[3]{
+  \ensuremath{
+  \def\arraystretch{1.35}
+  \Bigg\{
+  \, \  #1 \ \ \Big| \ \
+  \begin{array}{l}
+    #2 \\
+    #3
+  \end{array}
+  \ 
+  \Bigg\}
+  }
+}
+
+\newcommand{\AG}[2]{{#1}\Par{#2}}
+\newcommand{\iAG}[3]{#1\!:\!{#2}\Par{#3}}
+
+\newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+\newcommand{\Free}{\sbullet[.6]}
+\newcommand{\Trans}[2]{\, #1 \, \to \, #2 }
+\newcommand{\SlashTrans}[2]{\, #1 \, / \, #2 \,}
+
+\newcommand{\StateBefore}[1]{\sbullet[.6]\,{#1}}
+\newcommand{\StateAfter}[1]{{#1}\,\sbullet[.6]}
+
+
+
+\usepackage{array}
+
+% https://tex.stackexchange.com/questions/12703/how-to-create-fixed-width-table-columns-with-text-raggedright-centered-raggedlef
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+%\newcommand{\BetaCat}{$\textit{Cat}$}
+\newcommand{\BetaCat}{\text{Cat}}
+\newcommand{\CKOne}{\text{CK1}}
+\newcommand{\GSK}{\text{GSK}}
+
+

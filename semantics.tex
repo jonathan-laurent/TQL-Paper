@@ -1,0 +1,63 @@
+% -*- TeX-master: "main.tex" -*-
+
+\begin{figure}[p]
+\hrulefill
+\centering
+\begin{equation*}\label{tql-syntax}
+  \arraycolsep=5pt
+  \def\arraystretch{1.4}
+  \begin{array}{rcclcl}
+    \m{query} & Q & := & 
+    \MatchRet{\TracePat}{E} \ \, 
+    & \ &  \Sem{Q} \in \Trace \to \Bag{\Value} \\
+    \m{pattern} & \TracePat & := & C
+    & & \Sem{\TracePat} \in \Trace \to \Set{\Matching} \\
+    &  & | &  C \,\textsf{and}\, C \\
+    \m{clause} & C & := & e:\TransPat
+     &  & \Sem{C} \in \Trace \to \Set{\Matching} \\
+     &  & | & \FirstAfter{e:\TransPat}{e'} \\
+     &  & | & \LastBefore{e:\TransPat}{e'} \\
+    \m{event pattern} &  \TransPat & := & \cdots  %\{ M \} \ \textsf{with} \ E
+     & & \Sem{\TransPat} \in \Transition \to \Set{\Matching_{\Ag}}  \\
+    \m{expression} & E & := & \cdots
+     & & \Sem{E} \in \Trace \times \Matching \to \Value \\
+  \end{array}
+\end{equation*}
+\smallskip
+\begin{equation*}
+    \def\arraystretch{1.9}
+    \begin{array}{rcl}
+     \Sem{\MatchRet{\TracePat}{E}}(\tau) & \ = \ &
+     \BagC{\Sem{E}(\tau, \phi)}{\phi \in \Sem{\TracePat}(\tau)} \\
+     % \Sem{C}(\tau) & = & \Sem{C}(\tau) \\
+     \Sem{C \m{ and } C'}(\tau) & = & 
+     \Sem{C}(\tau) \Inter \Sem{C'}(\tau) \\
+     \Sem{ e : P }(\tau) & = & 
+     \SetC{\phi}{\phi_{\Ag} \in \Sem{P}(\At{\tau}{\phi_{\Tr}(e)})} \\
+  \end{array}
+\end{equation*}
+\smallskip
+\[
+ \Sem{ \FirstAfter{e:\TransPat}{e'} }(\tau)  \ = \  
+     \LargeMultilineSetC{\phi}{ 
+       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(e)}) \,,}{
+       \forall i. \ \phi_{\Tr}(e') < i < \phi_{\Tr}(e) \implies
+       \phi_{\Ag} \notin \Sem{\TransPat}(\At{\tau}{i})
+     }
+\]
+\[
+ \Sem{ \LastBefore{e:\TransPat}{e'} }(\tau)  \ = \
+     \LargeMultilineSetC{\phi}{ 
+       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(e)}) \,,}{
+       \forall i. \ \phi_{\Tr}(e) < i < \phi_{\Tr}(e') \implies
+       \phi_{\Ag} \notin \Sem{\TransPat}(\At{\tau}{i})
+     }
+\]
+
+\medskip
+\hrulefill
+\smallskip
+
+\caption{Syntax and semantics of the Trace Query Language}
+\label{fig:semantics}
+\end{figure}

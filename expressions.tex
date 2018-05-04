@@ -1,0 +1,41 @@
+\newcommand{\GEvMeasure}{M_{\textsf{e}}}
+\newcommand{\GStMeasure}{M_{\textsf{s}}}
+
+
+\begin{figure}[p]
+  \vspace{0.5cm}
+  \hrulefill
+  \centering  
+  \begin{equation*}\label{expr-syntax}
+  \arraycolsep=5pt
+  \def\arraystretch{1.4}
+  \begin{array}{rccl}
+    \m{expression} & E & := &
+        a \OR C \OR (\,E\,) \OR E \bowtie E \OR f\,(\,E\,) \OR E\,,\, E \OR \\
+     & &  &  
+        \GStMeasure[\,S\,] \OR \GStMeasure[\,S\,](\,E\,) \OR
+        \GEvMeasure[\,e\,] \OR \GEvMeasure[\,e\,](\,E\,)  \\
+    \m{constant} & C & := & 0 \OR 1 \OR \cdots 
+          \OR \STR{foo} \,\OR \cdots \\
+    \m{binary operator} & \bowtie & := & + \OR - \OR = \OR < \OR \cdots \\
+     \m{function} & f & := & 
+        \m{agent\_id} \OR \textsf{size} \OR \textsf{count} \OR \cdots \\
+    \m{state measure} & \GStMeasure & := & \m{int\_state} \OR
+         \m{component} \OR \m{snapshot} \OR \cdots \\
+    \m{state expression} & S & := & \StateBefore{e} \OR \StateAfter{e} \\
+    \m{event measure} & \GEvMeasure & := & \m{time} \OR
+         \m{rule} \OR \cdots \\
+    %\m{agent identifier} & a \\
+    %\m{event identifier} & e \\
+  \end{array}
+  \end{equation*}
+
+  {(with $a$ an agent variable and $e$ a transition variable)}
+
+  \medskip
+  \hrulefill
+  \smallskip
+
+  \caption{Syntax of expressions}
+  \label{fig:expressions}
+\end{figure}

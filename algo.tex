@@ -1,0 +1,59 @@
+\section{Matchings Enumeration Algorithm}\label{ap:algo}
+
+
+Let $Q$ a regular query with pattern $P$ and $\tau$ a trace. We first
+discuss an algorithm to compute the set of matchings $\Sem{P}(\tau)$
+of $P$ into $\tau$ in the special case where $P$ contains only clauses
+of the form $(t:T)$ and $(\FirstAfter{t:T}{t'})$. Also, in order to
+simplify our argument, we make the additional assumption that each
+transition variable is constrained by exactly one clause of the form
+($t:T$). This assumption can be easily removed by introducing a notion
+of conjunction for transition patterns, along with a \emph{unit}
+transition pattern that matches anything. We call $T$ the
+\emph{primary constraint} on $t$. In addition, by
+Definition~\ref{def:regularity}, every transition variable $t$ with the
+exception of the root of $P$'s transition graph is constrained by a
+unique clause of the form $(\FirstAfter{t:T}{t'})$. Here, we call $T$ the
+\emph{positioning constraint} of $t$.
+
+\bigskip
+
+% \newcommand{\PMS}{\textsc{pms}}
+\newcommand{\PMS}{p.m.s}
+
+The state of our algorithm features a collection of \emph{partial
+  matching structures}, that are defined as follows.
+\begin{definition}
+  In the context of a regular pattern and of a trace $\tau$, a
+  \emph{partial matching structure} (abbreviated \PMS) consists in the
+  following elements:
+  \begin{inparaenum}[(1)]
+  \item a \emph{partial transition matching} $p_{\!\Tr}$ that maps a
+    subset of transition variables to transitions of $\tau$
+  \item a \emph{partial agent matching} $p_{\!\Ag}$ that maps a
+    subset of agent variables to agent identifiers
+  \item a forest $F$ that consists in disjoint subtrees of the
+    pattern's dependency graph.
+  \end{inparaenum}
+
+  In addition, the following invariants must hold:
+  \begin{inparaenum}[(1)]
+  \item trees in $F$ along with the domain of $p_{\!\Tr}$ form a
+    partition of the set of all transition variables in the pattern
+  \item if $t$ belongs to the domain of $p_{\!\Tr}$ and determines an
+    agent variable $a$, then $a$ belongs to the domain of $l$.
+  \end{inparaenum}
+\end{definition}
+
+% TODO: conjunction
+
+Let $r$ the root of $P$'s dependency graph. Our algorithm starts with
+an empty collection of \PMS. It streams the trace in order and does
+the following for each transition $t$.
+
+% TODO: Critical thing: what does it mean for a transition pattern to
+% match a transition.
+
+%\begin{enumerate}
+%\item If the primary constraint of $r$ matches $t$, add
+%\end{enumerate}

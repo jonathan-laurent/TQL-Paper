@@ -1,0 +1,441 @@
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{esvect}
+\usepackage{listings}
+\usepackage{paralist}
+\usepackage{multicol}
+\usepackage{subcaption}
+
+\input{macros.tex}
+
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\begin{document}
+
+\title{A Trace Query Language for Kappa}
+
+%\author{Jonathan Laurent\inst{1} \and Jean Yang\inst{1,2}}
+\author{Anonymous Authors}
+
+%\authorrunning{Jonathan Laurent et al.}
+\authorrunning{Anonymous Authors}
+
+
+%\institute{Carnegie Mellon University \and Harvard Medical School}\\
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%TODO: novel/unified
+\begin{abstract}
+  In this paper, we introduce a novel approach to querying
+  simulation traces of rule-based models, along with an implementation
+  for the Kappa language. In our approach, a query consists in a trace
+  pattern along with an expression that depends on the variables
+  captured by this pattern. On a given trace, it evaluates to the
+  multiset of all values of the expression for every possible matching
+  of the pattern. We illustrate our query language on a simple
+  example, and then discuss its semantics and implementation. Finally,
+  we provide a detailed use case where we analyze the dynamics of
+  $\beta$-catenin degradation in Wnt signaling.
+
+  \keywords{Kappa \and Rule-based modelling \and Query Language.}
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+Rule-based modeling languages such as Kappa \cite{DanosEtAl-CONCUR07}
+and BioNetGen \cite{bngl} can be used to write mechanistic models of
+complex reaction systems. Models in these languages consist in
+stochastic graph-rewriting rules that are equipped with rate constants
+indicating their propensity to apply. Together with an initial mixture
+graph, these rules constitute a dynamical system that can be simulated
+using Gillespie's algorithm
+\cite{gillespie1977exact,DanosEtAl-APLAS07,BoutillierEK17}. Each run
+of simulation results in a sequence of transitions that we call a
+trace.
+
+In practice, simulation traces are often discarded in favor of a
+limited number of features such as the concentration curves of a set
+of observables. However, a more detailed analysis of their structure
+and statistical properties can provide useful insights into a system's
+dynamics. For example, causal analysis methods exist
+\cite{DanosEtAl-CONCUR07,DBLP:conf/fsttcs/DanosFFHH12} that compress a
+large trace into a minimal subset of events that are necessary and
+jointly sufficient to replicate an ouctome of interest, and then
+highlight causal influences between those remaining events.
+% Ideally, such techniques provide a way to uncover signalling
+% pathways from networks of low-level protein-protein interactions
+Queries about the statistical behavior of individual agents can also
+lead to complementary insights. Examples include
+\begin{inparaenum}[(i)]
+\item measuring the average lifespan of a complex under different
+  conditions,
+\item computing a probability distribution over the states in which a
+  particular type of agent can be when targeted by a given rule, and
+\item estimating how much of a certain kind of substrate getting
+  phosphorylated is due to a particular pathway at different points in
+  time.
+\end{inparaenum}
+
+% Engineering challenge.
+% Flexible tool.
+% Extensible.
+% Principled foundations -> can evolve in the future.
+
+
+\section{A Starting Example}\label{sec:starting-example}
+
+In order to illustrate our Trace Query Language, we introduce a toy
+Kappa model in Figure~\ref{fig:model}. It is described using a rule
+notation that has been introduced in the latest release of the Kappa
+simulator and which we borrow in our query language. With this
+notation, a rule is described as a pattern that is annotated with
+rewriting instructions. The pattern denotes a precondition that is
+required for a rule to target a collection of agents. Rewriting
+instructions are specified by arrows that indicate the new state of a
+site after transformation.
+
+The model of Figure~\ref{fig:model} features two types of agents:
+substrates $S$ and kinases $K$. Both kinds of agents have two
+different sites, named $x$ and $d$. In addition, $x$-sites can be in
+two different internal states: \textit{unphosphorylated} and
+\textit{phosphorylated}. We write those states $u$ and $p$,
+respectively. Rule $b$ expresses the fact that a substrate and a
+kinase with free $d$-sites can bind at rate $\lambda_b$. Rules $u$ and
+$u^*$ express the fact that the breaking of the resulting complex
+happens at different rates, depending on the phosphorylation state of
+the kinase involved. Finally, rule $p$ expresses the fact that a
+substrate that is bound to a kinase can get phosphorylated at rate
+$\lambda_p$. In all our examples, we consider initial mixtures
+featuring free substrates and kinases in smiliar quantity. Substrates
+are initially unphosphorylated and kinases are present in both
+phosphorylation states.
+
+
+\input{toy-model.tex}
+
+By playing with this model a bit, one may notice that the
+concentration of phosphorylated substrate reaches its maximal value
+faster when the ratio of phosphorylated kinases is high (given the
+rules of our model, the latter quantity is invariant during
+simulation). This phenomenon cannot be explained by looking at rule
+$p$ alone. The query provided in~(\ref{eq:exq1}) can be run to
+estimate the probability that a substrate is bound to a phosphorylated
+kinase when it gets phosphorylated:
+\begin{equation}\label{eq:exq1}
+  \m{match } t:\Set{ \AG{S}{x_{\Trans{u}{p}},\ d^{\,1}},\ \iAG{k}{K}{d^{\,1}} }
+  \, \m{ return } \, \IntState{\,\StateBefore{t}\,}{\,k\,}{\STR{x}\,}
+\end{equation}
+Given a trace, this query matches every transition where a substrate
+is getting phosphorylated and outputs the phosphorylation state of the
+attached kinase. The variables $t$ and $k$ denote a transition and an
+agent, respectively. Moreover, the expression
+$\IntState{\,\StateBefore{t}\,}{\,k\,}{\STR{x}\,}$ refers to the
+internal state of the site of agent $k$ with name \STR{x} in the
+mixture preceding transition $t$.
+
+Running the previous query, we learn that substrates are much more
+likely to be phosphorylated by kinases that are phosphorylated
+themselves, even when such kinases are in minority in the mixture.
+This leads us to conjecture a causal link between the phosphorylation
+state of a kinase and its efficiency. After some thoughts, this link
+can be easily interpreted: because $\lambda_u \gg \lambda_{u^*}$,
+phosphorylated kinases form more stable complexes with substrates,
+leaving more chances for a phosphorylation interaction to happen.  In
+fact, the average lifespan of a kinase-substrate complex is exactly
+$\lambda_{u^*}^{-1}$ when the kinase is phosphorylated and
+$\lambda_u^{-1}$ when it is not. We can check these numbers
+experimentally by running the following query:
+\begin{equation}\label{eq:query-lifespan}
+  \Query{
+    \m{match} & 
+    b:\Set{ \iAG{s}{S}{d^{\Trans{\Free}{1}}}, \ 
+      \AG{K}{d^{\Trans{\Free}{1}}, \ x_{p}} } \\
+    \m{and} &
+    \FirstAfter{u:\Set{ \iAG{s}{S}{d^{\Trans{}{\Free}}} }}{b} \\
+    \m{return} & 
+    \Time{u} - \Time{b}
+  }
+\end{equation}
+This query outputs a multiset of numbers, whose mean is the average
+lifespan of a complex formed by a substrate and a phosphorylated
+kinase. The same quantity can be computed for unphosphorylated kinases
+by replacing $x_p$ by $x_u$ in the first
+line. %of~\ref{eq:query-lifespan}.
+The pattern in this query does not match single transitions but pairs
+of related transitions $(b, u)$, where $b$ is a binding transition and
+$u$ the first unbinding transition to target the same substrate.
+
+% TODO: maybe add final examples.
+
+\bigskip
+
+More generally, a query is defined by a {pattern}
+$P[\Vec{t}, \Vec{a}]$ and an {expression} $E[\Vec{t}, \Vec{a}]$, which
+feature a shared set $\Vec{t}$ of transition variables and a shared
+set $\Vec{a}$ of agent variables. The pattern $P$ can be regarded as a
+predicate that takes as its arguments a trace $\tau$ and a
+\emph{matching} $\phi$ mapping the variables in $\Vec{t}$ and
+$\Vec{a}$ to actual transitions and events in $\tau$.  The expression
+$E$ can be regarded as a function that maps such $(\tau, \phi)$ pairs
+to values. Then, the query evaluates on a trace $\tau$ to the multiset
+of all values of $E$, for every matching $\phi$ that satisfies $P$ in
+$\tau$.
+
+% TODO: values are tuples, generate a CSV file
+
+\section{The Core Query Language}\label{sec:semantics}
+
+In this section, we introduce the extensible core of our proposed
+query language and give it a formal semantics.
+
+\subsection{Meaning and Structure of Queries}\label{subsec:structure}
+As shown in Figure~\ref{fig:semantics}, a query $Q$ consists in a
+pattern $P$ and an expression $E$. It can be interpreted as a function
+$\Sem{Q}$ from traces to multisets\footnote{Note that multisets are
+  indicated in Figure~\ref{fig:semantics} using Dijkstra's bag
+  notation, whereas sets are indicated using the standard curly
+  brackets notation.} of values. The set of allowed values can grow
+larger as richer expressions are added to the language. Our current
+implementation defines a value as a tuple of base values and features
+the following types for base values: \m{bool}, \m{int}, \m{float},
+\m{string}, \m{agent}, \m{agent\_set} and \m{snapshot}.
+
+A pattern $P$ is interpreted as a function $\Sem{P}$ that maps a trace
+to a set of matchings. A matching $\phi$ is defined by two functions
+$\phi_{\Tr}$ and $\phi_{\Ag}$, which map variable names to transition
+identifiers and agent identifiers, respectively. We call $\phi_{\Tr}$
+a transition matching and $\phi_{\Ag}$ an agent matching.  Given a
+trace $\tau$ and a matching $\phi$, the transition variable $v$
+denotes the transition $\tau[\phi_{\Tr}(v)]$, where $\tau[i]$ is a
+notation for the $i^{th}$ transition of a trace. In addition, an
+expression $E$ is interpreted as a function $\Sem{E}$ that maps a pair
+of a trace and a matching to a value. Our extensible expression
+language is discussed in section~\ref{subsec:expr-language} and its
+syntax is documented in Figure~\ref{fig:expressions}. Then, the
+semantics of a query can be formally defined as follows:
+\[ \Sem{\MatchRet{\TracePat}{E}}(\tau) \ = \ \BagC{\Sem{E}(\tau,
+    \phi)}{\phi \in \Sem{\TracePat}(\tau) }.  \]
+
+Our language constraints the structure of possible patterns. Indeed,
+as shown in Figure~\ref{fig:semantics}, a pattern consists in a
+sequence of clauses, which can take one of three different forms:
+$(t:\TransPat)$, $(\FirstAfter{t:\TransPat}{t'})$ and
+$(\LastBefore{t:\TransPat}{t')}$. Here, $t$ and $t'$ are transition
+variables and $T$ is a \emph{transition pattern}. In all three cases,
+we say that $t$ is \emph{constrained} by the clause.
+
+\subsection{Transition Patterns}\label{subsec:tpats-language}
+
+A transition pattern can be thought as a predicate that takes as its
+argument a pair $(\tau, \phi_{\Ag})$ of a transition and an agent
+matching. Our current implementation supports specifying transition
+patterns using KaSim's \emph{edit notation}. Transition patterns
+defined this way are enclosed within curly brackets.  For example, in
+query~(\ref{eq:exq1}) of section~\ref{sec:starting-example},
+\[ \Set{ \AG{S}{x_{\Trans{u}{p}},\ d^{\,1}},\ \iAG{k}{K}{d^{\,1}} } \]
+is true for a transition $t$ and a matching $\phi_{\Ag}$ if and only
+if $t$ has the effect of phosphorylating a substrate that is bound to
+the kinase with identifier $\phi_{\Ag}(k)$. Formally, a transition
+pattern $T$ is interpreted as a function $\Sem{T}$ that maps
+transitions into sets of agent matchings. Using the predicate
+terminology, one may say that $\phi_{\Ag} \in \Sem{T}(t)$ if and only
+if $(t, \phi_{\Ag})$ satisfies $T$.
+
+% TODO: rigidity condition, with clause
+
+\subsection{Expression Language}\label{subsec:expr-language}
+
+We show Figure~\ref{fig:expressions} the syntax of our expression
+language. An expression can consist in an agent variable, a constant,
+a parenthesized expression, a binary operation, a
+function\footnote{Note that functions always take a single argument,
+  which can be a tuple.} of an expression, a tuple of expressions or a
+\emph{measure}.
+
+Measures are the basic constructs through which information is
+extracted from a trace. They come in two different kinds: \emph{state
+  measures} and \emph{event measures}. State measures are used to
+extract information about the state of the mixture at different points
+in the trace. They are parametered with \emph{state expressions} that
+can take the form $\StateBefore{t}$ or $\StateAfter{t}\,$, denoting
+the states before and after transition $t$, respectively. For example,
+the \texttt{int\_state} measure that is used in (\ref{eq:exq1}) is a
+state measure. In addition, event measures are used to extract
+information that is about a transition itself (in contrast to the
+states that it connects). They are parametered by transition
+variables. For example, the \texttt{time} measure that is used in
+(\ref{eq:query-lifespan}) is an event measure.
+
+% TODO: extensible, types, only ask for decidability
+
+\input{semantics.tex} \input{expressions.tex}
+
+\section{Evaluating Queries}
+
+In this section, we introduce a natural subset of the language
+described in section~\ref{sec:semantics}, for which we provide an
+efficient implementation. Queries in this subset are said to be
+\emph{regular}, and they display an interesting {rigidity}
+property.
+
+\subsection{Rigidity}
+
+Intuitively, a pattern is said to be rigid if its matchings are
+completely determined by the value of a single transition variable.
+\begin{definition}\label{def:rigidity}
+  Given a Kappa model, a pattern $P$ is said to be \emph{rigid} if and
+  only if it features a transition variable $r$ called \emph{root
+    variable} such that for any trace $\tau$ that is valid in the
+  model, we have
+  \[ \forall\, \phi, \phi' \in \Sem{P}(\tau), \ \phi_{\Tr}\,(r) =
+    \phi'_{\Tr}\,(r) \implies \phi = \phi'. \]
+\end{definition}
+An easy consequence of this definition is that the number of matchings
+of a rigid pattern into a trace is bounded by the size of this trace.
+
+% TODO: why useful: complexity
+
+For example, the pattern $P$ of query~(\ref{eq:query-lifespan})
+% in section~\ref{sec:starting-example}
+is rigid, with root variable $b$. Indeed, suppose that $b$ is matched
+to a specific transition $t$. Then, the agent variable $s$ is
+determined by $t$ as no more than one substrate can get bound during a
+single transition given the rules of our model
+(Figure~\ref{fig:model}). Finally, $u$ is uniquely determined as the
+first unbinding event that targets $s$ after $b$.
+
+\subsection{Regular Queries}
+
+Our evaluation algorithm handles a subset of queries whose
+patterns admit a certain tree structure. For those patterns, rigidity
+is implied by a weaker notion of \emph{local rigidity}.
+\begin{definition}
+  Given a Kappa model, a transition pattern $T$ is said to be
+  \emph{rigid} if and only if for any agent variable $a$ that appears
+  in $T$ and every valid transition $t$, we have
+  \[ \forall\, \phi_{\Ag}\,, \phi_{\Ag}' \in \Sem{T}, \ \phi_{\Ag}(a)
+    = \phi'_{\Ag}(a). \]
+\end{definition}
+Intuitively, a transition pattern is rigid if matching it to a
+transition determines all its agent variables.
+\begin{definition}
+  Given a model, a pattern $P$ is said to be \emph{locally rigid} if
+  it features only rigid transition patterns. Then, a transition
+  variable $t$ is said to \emph{determine} an agent variable $a$ if
+  there is a clause of $P$ that constrains\footnote{As defined in
+    section~\ref{subsec:structure}.} $t$ and features $a$.
+\end{definition}
+For patterns with a particular structure, local rigidity implies
+rigidity. This structural assumption can be expressed in terms of a
+pattern's \emph{dependency graph}.
+\begin{definition}
+  The \emph{dependency graph} of a pattern $P$ is a graph whose
+  nodes are the transition variables of $P$ and for which there is an
+  edge from $t$ to $t'$ if and only if $P$ contains a clause of the
+  form
+  % \[\FirstAfter{t':T}{t} \qquad \text{or} \qquad
+  %   \LastBefore{t':T}{t}.\]
+  $(\FirstAfter{t':T}{t})$ or $(\LastBefore{t':T}{t})$.
+\end{definition}
+We can now define the notion of a regular pattern, and thus of a
+regular query.
+\begin{definition}\label{def:regularity}
+  A pattern is said to be \emph{regular} if the following three
+  conditions hold:
+  \begin{inparaenum}[(i)]
+  \item\label{reg:locally-rigid} it is locally rigid
+  \item\label{reg:tree} its dependency graph is a tree
+  \item\label{reg:well-captured} whenever two of its transition
+    variables determine a same agent variable, one has to be a
+    descendent of the other in the dependency tree.
+  \end{inparaenum}
+\end{definition}
+This structure enables an efficient enumeration of the matchings of a
+regular pattern into a trace. Moreover, the number of
+these matchings is bounded by the size of the trace, as regular
+patterns can be proven to be rigid.
+\begin{proposition}\label{prop:regular-rigid}
+  Regular patterns are rigid.
+\end{proposition}
+Finally, regular queries are defined as expected.
+\begin{definition}
+  A query is said to be \emph{regular} if its pattern is regular.
+\end{definition}
+The concept of a regular query may seem quite restrictive at
+first. However, the first users of our language implementation never
+expressed any frustration due to the regularity requirement, despite
+not being aware of it: they would naturally come up with regular
+queries only.\footnote{Furthermore, they would also write the clauses
+  of their patterns in an order that reflects their dependency trees.}
+In our opinion, this is due to the difficulty of interpreting
+non-regular queries operationally.
+
+% More precisely, the root of the dependency tree of a regular pattern
+% is a root variable, in the sense of
+% Definition~\ref{def:rigidity}. The intuition underlying this
+% proposition should become clearer in section~\ref{subsec:evalq},
+% when we introduce an algorithm for evaluating regular queries
+% (defined below).
+
+\subsection{Evaluating Regular Queries
+  Efficiently}\label{subsec:evalq}
+
+When designing an algorithm for evaluating queries, one has to keep in
+mind that the corresponding sequence of state mixtures cannot fit in
+random-access memory all at once, even for small traces. In fact, even
+the most economic representation of a trace, which is specified by an
+initial mixture and a sequence of labeled rewriting events, may fail
+to fit in memory in some cases. Therefore, as often as possible, one
+should only be allowed to stream such a representation from disk, recomputing
+intermediate states dynamically and never keeping more than a few number
+of them in memory at once (two in our case).
+
+Our proposed algorithm for evaluating a regular query proceeds in two
+steps. First, it streams the trace to compute the set of all matchings
+of the pattern. Then, it streams the trace a second time to compute
+the value of the expression for all these matchings. The second step
+is quite simple to implement. Indeed, once the matchings are known, it
+is easy to compute the sequence of all measures that need to be
+performed and order them in increasing order of time. The first step
+is trickier. Intuitively, 
+
+
+\subsection{Our Implementation}
+
+% TODO: generate CSV ?  What happens when Features of the
+% implementation: types, coercions...  Give a reference to an appendix
+% with the list of all functions and measures
+
+\input{use-case.tex}
+
+% Say a few words about the speed of the implementation
+
+\section{Conclusion}
+
+% Interaction with causal analysis Insist on the clean semantics
+% foundations Natural queries are natural
+
+% \input{playground.tex}
+
+% Extensions and Future work
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ---- Bibliography ----
+
+\nocite{*} \bibliographystyle{splncs04} \bibliography{main}
+
+\newpage
+
+\appendix
+
+%\input{algo.tex}
+
+\end{document}

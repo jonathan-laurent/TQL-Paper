@@ -1,0 +1,96 @@
+
+ In this paper, we introduce a unified approach to querying
+  simulation traces of rule-based models about the statistical
+  behavior of individual agents.
+
+{reg:locally-rigid}
+{reg:tree}
+{reg:well-captured}
+{prop:regular-rigid}
+
+By definition of regularity,
+the dependency graph of $P$ is a tree.
+
+The notion of regular query is based on a natural condition that is
+sufficient to ensure rigidity for a pattern.
+
+We propose a sufficient condition for a pattern to be rigid, that is based
+on a weaker notion of local rigidity and
+
+
+In other words, a matching of $\Sem{P}$ is completely determined by
+the image of the root variable.
+
+
+Given a matching of agents, a transition pattern should be thought as
+a predicate over transitions. Then, $\Sem{t:T}(\tau)$ corresponds to
+the set of matchings $\phi$ for which $\tau[\phi_{\Tr}(t)]$ satisfies
+$T$. Moreover, $\Sem{\FirstAfter{t:\TransPat}{t'}}(\tau)$
+
+Although there is little hope for an efficient implementation of the
+query language described above in its full generality, 
+
+In section~\ref{subsec:evalq}, we propose an evaluation algorithm for
+a subset of queries whose patterns admit a certain tree structure. For
+those patterns, rigidity is implied by a weaker notion of \emph{local
+  rigidity}.
+
+\[ \Set{ \AG{S}{x_{\Trans{u}{p}},\ d^{\,1}},\ \iAG{k}{K}{d^{\,1}} } \]
+is true for a transition $t$ if $t$ rewrites the internal state of the
+$x$-site of a substrate from $u$ to $p$ and that this substrate is
+bound to the kinase whose identifier is $\phi_{\Ag}(k)$.
+
+$\m{agent} \times \m{string} \to \m{string}$
+
+For example, causal analysis methods exist
+\cite{DanosEtAl-CONCUR07,DBLP:conf/fsttcs/DanosFFHH12} that compress a
+large trace into a minimal subset of events that are necessary and
+jointly sufficient to replicate an ouctome of interest, and then
+highlight causal influences between those remaining events.
+
+\[ \Value \ = \ \textsf{Bool} \,\sqcup\, \textsf{Int} \,\sqcup\,
+  \textsf{Float} \,\sqcup\, \textsf{String} \,\sqcup\, \cdots \]
+
+
+Although there is little hope of implementing the query language
+presented in section~\ref{sec:semantics} in its totality.
+
+Said more informally, evaluating the query consists in
+computing $E[\Vec{t}, \Vec{a}]$ for every value of $\Vec{t}$ and $\Vec{a}$
+that makes $P[\Vec{t}, \Vec{a}]$ true in a given trace.
+
+We also give it a formal semantics, although some
+readers may want to skip this part in first reading.
+
+We show Figure~\ref{fig:semantics} the semantics of our core query
+language.
+
+We write $\Matching$
+the set of all matchings and $\Matching_{\Ag}$ the set of all agent matchings.
+
+ Intuitively, $\Sem{P}(\tau)$ is 
+the set of all matchings that satisfy $P$.
+
+ We give a more precise
+ account shortly, in section~\ref{subsec:tpats-language}.
+
+ \begin{inparaenum}[(i)]
+   \item $t:\TransPat$
+   \item $\FirstAfter{t:\TransPat}{t'}$
+   \item $\LastBefore{t:\TransPat}{t'}$.
+ \end{inparaenum}
+
+\begin{figure}
+\begin{small}
+\begin{verbatim}
+%agent: K(d, x{u,p})
+%agent: S(d, x{u,p})
+
+'b'  K(d[./1]), S(d[./1]) @ 'on_rate'
+'u'  K(d[1/.], x{u}), S(d[1/.]) @ 'off_rate_fast'
+'u*' K(d[1/.], x{p}), S(d[1/.]) @ 'off_rate_slow'
+'p'  K(d[1]), S(d[1], x{u/p}) @ 'phos_rate'
+\end{verbatim}
+\end{small}
+\caption{An Example Kappa Model}\label{fig:model}
+\end{figure}
