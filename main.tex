@@ -32,7 +32,7 @@
 
 %TODO: novel/unified
 \begin{abstract}
-  In this paper, we introduce a novel approach to querying
+  In this paper, we introduce a unified approach to querying
   simulation traces of rule-based models, along with an implementation
   for the Kappa language. In our approach, a query consists in a trace
   pattern along with an expression that depends on the variables
@@ -131,7 +131,7 @@ estimate the probability that a substrate is bound to a phosphorylated
 kinase when it gets phosphorylated:
 \begin{equation}\label{eq:exq1}
   \m{match } t:\Set{ \AG{S}{x_{\Trans{u}{p}},\ d^{\,1}},\ \iAG{k}{K}{d^{\,1}} }
-  \, \m{ return } \, \IntState{\,\StateBefore{t}\,}{\,k\,}{\STR{x}\,}
+  \, \m{ return } \, \IntState{\StateBefore{t}}{k}{\STR{x}}
 \end{equation}
 Given a trace, this query matches every transition where a substrate
 is getting phosphorylated and outputs the phosphorylation state of the
@@ -173,7 +173,21 @@ The pattern in this query does not match single transitions but pairs
 of related transitions $(b, u)$, where $b$ is a binding transition and
 $u$ the first unbinding transition to target the same substrate.
 
-% TODO: maybe add final examples.
+\iffalse
+% Additional example
+\begin{equation}\label{eq:query-kinase-efficiency}
+  \Query{
+    \m{match} & 
+    b:\Set{ \iAG{s}{S}{x_u,\ d^{\Trans{\Free}{1}}}, \ 
+      \iAG{k}{K}{d^{\Trans{\Free}{1}}} } \\
+    \m{and} &
+    \FirstAfter{u:\Set{ \iAG{s}{S}{d^{\Trans{}{\Free}}} }}{b} \\
+    \m{return} & 
+      \IntState{\StateBefore{b}}{k}{\STR{x}}, \ 
+      \IntState{\StateAfter{u}}{s}{\STR{x}}
+  }
+\end{equation}
+\fi
 
 \bigskip
 
@@ -217,15 +231,15 @@ trace $\tau$ and a matching $\phi$, the transition variable $v$
 denotes the transition $\tau[\phi_{\Tr}(v)]$, where $\tau[i]$ is a
 notation for the $i^{th}$ transition of a trace. In addition, an
 expression $E$ is interpreted as a function $\Sem{E}$ that maps a pair
-of a trace and a matching to a value. Our extensible expression
-language is discussed in section~\ref{subsec:expr-language} and its
+of a trace and a matching to a value. The expression language is
+extensible and is discussed in section~\ref{subsec:expr-language}. Its
 syntax is documented in Figure~\ref{fig:expressions}. Then, the
 semantics of a query can be formally defined as follows:
 \[ \Sem{\MatchRet{\TracePat}{E}}(\tau) \ = \ \BagC{\Sem{E}(\tau,
     \phi)}{\phi \in \Sem{\TracePat}(\tau) }.  \]
 
-Our language constraints the structure of possible patterns. Indeed,
-as shown in Figure~\ref{fig:semantics}, a pattern consists in a
+Our language constraints the structure of possible patterns.
+As shown in Figure~\ref{fig:semantics}, a pattern consists in a
 sequence of clauses, which can take one of three different forms:
 $(t:\TransPat)$, $(\FirstAfter{t:\TransPat}{t'})$ and
 $(\LastBefore{t:\TransPat}{t')}$. Here, $t$ and $t'$ are transition
@@ -248,6 +262,14 @@ pattern $T$ is interpreted as a function $\Sem{T}$ that maps
 transitions into sets of agent matchings. Using the predicate
 terminology, one may say that $\phi_{\Ag} \in \Sem{T}(t)$ if and only
 if $(t, \phi_{\Ag})$ satisfies $T$.
+
+Our query language can be instantiated with any choice of a language
+specifying transition patterns. The only requirement is that
+transition patterns should be {decidable efficiently} in the following
+sense. Given a transition pattern $T$ and a transition $t$, one should
+be able to efficiently compute whether $\Sem{T}(t)$ is empty and
+generate an element of it in the case it is not. Our evaluation
+algorithm relies on this property.
 
 % TODO: rigidity condition, with clause
 
@@ -274,6 +296,11 @@ states that it connects). They are parametered by transition
 variables. For example, the \texttt{time} measure that is used in
 (\ref{eq:query-lifespan}) is an event measure.
 
+The expression language can be easily extended with new operators,
+functions, measures and types. In the same way than the language for
+specifying transition patterns, it should be regarded as a parameter
+of our query language and not as a rigid component.
+
 % TODO: extensible, types, only ask for decidability
 
 \input{semantics.tex} \input{expressions.tex}
@@ -283,8 +310,7 @@ variables. For example, the \texttt{time} measure that is used in
 In this section, we introduce a natural subset of the language
 described in section~\ref{sec:semantics}, for which we provide an
 efficient implementation. Queries in this subset are said to be
-\emph{regular}, and they display an interesting {rigidity}
-property.
+\emph{regular}, and they display an interesting {rigidity} property.
 
 \subsection{Rigidity}
 
@@ -298,11 +324,6 @@ completely determined by the value of a single transition variable.
   \[ \forall\, \phi, \phi' \in \Sem{P}(\tau), \ \phi_{\Tr}\,(r) =
     \phi'_{\Tr}\,(r) \implies \phi = \phi'. \]
 \end{definition}
-An easy consequence of this definition is that the number of matchings
-of a rigid pattern into a trace is bounded by the size of this trace.
-
-% TODO: why useful: complexity
-
 For example, the pattern $P$ of query~(\ref{eq:query-lifespan})
 % in section~\ref{sec:starting-example}
 is rigid, with root variable $b$. Indeed, suppose that $b$ is matched
@@ -312,11 +333,15 @@ single transition given the rules of our model
 (Figure~\ref{fig:model}). Finally, $u$ is uniquely determined as the
 first unbinding event that targets $s$ after $b$.
 
+An easy consequence of Definition~\ref{def:rigidity} is that the
+number of matchings of a rigid pattern into a trace is bounded by the
+size of this trace.
+
 \subsection{Regular Queries}
 
-Our evaluation algorithm handles a subset of queries whose
-patterns admit a certain tree structure. For those patterns, rigidity
-is implied by a weaker notion of \emph{local rigidity}.
+Our evaluation algorithm handles a subset of queries whose patterns
+admit a certain tree structure. For those patterns, rigidity is
+implied by a weaker notion of \emph{local rigidity}.
 \begin{definition}
   Given a Kappa model, a transition pattern $T$ is said to be
   \emph{rigid} if and only if for any agent variable $a$ that appears
@@ -337,10 +362,9 @@ For patterns with a particular structure, local rigidity implies
 rigidity. This structural assumption can be expressed in terms of a
 pattern's \emph{dependency graph}.
 \begin{definition}
-  The \emph{dependency graph} of a pattern $P$ is a graph whose
-  nodes are the transition variables of $P$ and for which there is an
-  edge from $t$ to $t'$ if and only if $P$ contains a clause of the
-  form
+  The \emph{dependency graph} of a pattern $P$ is a graph whose nodes
+  are the transition variables of $P$ and for which there is an edge
+  from $t$ to $t'$ if and only if $P$ contains a clause of the form
   % \[\FirstAfter{t':T}{t} \qquad \text{or} \qquad
   %   \LastBefore{t':T}{t}.\]
   $(\FirstAfter{t':T}{t})$ or $(\LastBefore{t':T}{t})$.
@@ -354,7 +378,7 @@ regular query.
   \item\label{reg:locally-rigid} it is locally rigid
   \item\label{reg:tree} its dependency graph is a tree
   \item\label{reg:well-captured} whenever two of its transition
-    variables determine a same agent variable, one has to be a
+    variables determine a same agent variable, one of them has to be a
     descendent of the other in the dependency tree.
   \end{inparaenum}
 \end{definition}
@@ -369,14 +393,8 @@ Finally, regular queries are defined as expected.
 \begin{definition}
   A query is said to be \emph{regular} if its pattern is regular.
 \end{definition}
-The concept of a regular query may seem quite restrictive at
-first. However, the first users of our language implementation never
-expressed any frustration due to the regularity requirement, despite
-not being aware of it: they would naturally come up with regular
-queries only.\footnote{Furthermore, they would also write the clauses
-  of their patterns in an order that reflects their dependency trees.}
-In our opinion, this is due to the difficulty of interpreting
-non-regular queries operationally.
+
+
 
 % More precisely, the root of the dependency tree of a regular pattern
 % is a root variable, in the sense of
@@ -394,27 +412,62 @@ random-access memory all at once, even for small traces. In fact, even
 the most economic representation of a trace, which is specified by an
 initial mixture and a sequence of labeled rewriting events, may fail
 to fit in memory in some cases. Therefore, as often as possible, one
-should only be allowed to stream such a representation from disk, recomputing
-intermediate states dynamically and never keeping more than a few number
-of them in memory at once (two in our case).
+should only be allowed to stream such a representation from disk,
+recomputing intermediate states dynamically and never keeping more
+than a small number of them in memory at once (two in our case).
 
-Our proposed algorithm for evaluating a regular query proceeds in two
+Our algorithm for evaluating a regular query proceeds in two
 steps. First, it streams the trace to compute the set of all matchings
 of the pattern. Then, it streams the trace a second time to compute
 the value of the expression for all these matchings. The second step
 is quite simple to implement. Indeed, once the matchings are known, it
 is easy to compute the sequence of all measures that need to be
 performed and order them in increasing order of time. The first step
-is trickier. Intuitively, 
+attempts to match the root variable of the pattern to every transition
+in the trace. For each candidate matching, it uses rigidity to
+determine all other variables progressively as the trace is streamed,
+in an order that is determined by the dependency tree and with a
+minimal amount of caching. Overall, the algorithm runs in time linear
+in the length of the trace.
 
 
 \subsection{Our Implementation}
 
-% TODO: generate CSV ?  What happens when Features of the
-% implementation: types, coercions...  Give a reference to an appendix
-% with the list of all functions and measures
+We provide an implementation of the trace query language, which relies
+on the algorithm that is mentioned in section~\ref{subsec:evalq} for
+evaluating regular queries. Our query engine takes for inputs
+\begin{inparaenum}[(i)]
+\item a file that contains a list of queries written in the same
+  syntax that we use in our examples and
+\item a trace file that has been generated by the Kappa simulator
+  using the \texttt{-trace} option.
+\end{inparaenum}
+It evaluates all queries at once and generates one output file per
+query, in comma-separated values (CSV) format.\footnote{Every line of
+  an output file represents a single value. In our expression
+  language, values are tuples of \emph{base values}. These are
+  separated by commas within a line.}
 
-\input{use-case.tex}
+%Queries that are ``structurally'' non-regular for structural reasons
+
+\iffalse
+The regularity requirement may seem restrictive. However, the first
+users of our query engine never expressed any frustration due to the
+regularity requirement, despite not being aware of this limitation:
+they naturally came up with regular queries
+only.\footnote{Furthermore, they would also write the clauses of their
+  patterns in an order that reflects their dependency trees.}  In our
+opinion, this is due to the difficulty of interpreting non-regular
+queries operationally.
+\fi
+
+%We provide an implementation
+
+% How non regular are rejected ?
+% CSV
+
+
+%\input{use-case.tex}
 
 % Say a few words about the speed of the implementation
 
