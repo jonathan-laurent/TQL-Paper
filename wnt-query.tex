@@ -1,43 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection*{Wait times}
-
-What is the distribution of times spent
-between the first phosphorylation on an agent, and the time it gets
-degraded?
-
-%match i:{+c:Cat}
-%and first p:{c:Cat(S45{un/ph})} after i
-%and first d:{-c:Cat} after p
-%return (agent_id{c}, time[p], time[d])
-
-\begin{small}
-\begin{equation}
-  \Query{
-    \m{match} & i:\Set{  c:\BetaCat+ } \\
-    \m{and} & \FirstAfter{p:\Set{
-        \iAG{c}{\BetaCat}{{S45}_{\Trans{u}{p}}}
-    }}{i} \\
-    \m{and} & \FirstAfter{ d:\Set{
-        c:\BetaCat-
-    } }{p} \\
-    \m{return} & \Par{\AgentId{c},\, \Time{p},\, \Time{d}}
-  } 
-\end{equation}
-\end{small}
-
-\noindent \textit{About this query.} Agent creation and destruction is
-expressed by prefixing agent names with $+$ and $-$,
-respectively. Moreover, \textsf{agent\_id} is a function that returns
-the unique integer identifier of an agent.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \subsubsection*{Undoing S45, T41, S37 and S33 phosphorylation}
 Considering phosphatases are around and undoing the phosphorylation of
 sites, does this happen to all agents? Does it happen to just an
 unlucky few number of agents? What is the distribution of
-dephosphorylation events per agent?
+dephosphorylation events per agent? Figure~\ref{F1}
 
 %match e:{c:Cat(S45{ph/un})}
 %return (agent_id{c}, time[e])
@@ -70,6 +37,38 @@ dephosphorylation events per agent?
   \end{equation*}
 \end{small}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection*{Wait times}
+
+What is the distribution of times spent
+between the first phosphorylation on an agent, and the time it gets
+degraded? Figure~\ref{F2}
+
+%match i:{+c:Cat}
+%and first p:{c:Cat(S45{un/ph})} after i
+%and first d:{-c:Cat} after p
+%return (agent_id{c}, time[p], time[d])
+
+\begin{small}
+\begin{equation}
+  \Query{
+    \m{match} & i:\Set{  c:\BetaCat+ } \\
+    \m{and} & \FirstAfter{p:\Set{
+        \iAG{c}{\BetaCat}{{S45}_{\Trans{u}{p}}}
+    }}{i} \\
+    \m{and} & \FirstAfter{ d:\Set{
+        c:\BetaCat-
+    } }{p} \\
+    \m{return} & \Par{\AgentId{c},\, \Time{p},\, \Time{d}}
+  } 
+\end{equation}
+\end{small}
+
+\noindent \textit{About this query.} Agent creation and destruction is
+expressed by prefixing agent names with $+$ and $-$,
+respectively. Moreover, \textsf{agent\_id} is a function that returns
+the unique integer identifier of an agent.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -81,7 +80,7 @@ phosphorylation events leading to degradation took place?  Which
 enzymes contribute most? Are all enzymes contributing comparably to
 the destruction, or are some continuously sabotaged by phosphatases?
 What is the distribution of kinase identifiers for the last
-phosphorylation events that lead to degradation?
+phosphorylation events that lead to degradation? Figure~\ref{F6}
 
 \newcommand{\BigHectorStoryLine}[4]{
 \LastBefore{#1:\Set{ 
@@ -90,7 +89,7 @@ phosphorylation events that lead to degradation?
     }}{d}
 }
 \newcommand{\BigHectorStoryRet}[2]{
-\AgentId{#1}, \ \Count{ \Component{\StateBefore{#2}}{#1}, \, 
+\AgentId{#2}, \ \Count{ \Component{\StateBefore{#1}}{#2}, \, 
       \STR{Axn}, \, \STR{APC} }
 }
 

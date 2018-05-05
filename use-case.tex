@@ -74,7 +74,7 @@ resulting traces.
 
 \subsubsection*{Distribution of undo events per agent}
 
-To further study the effect of adding phosphatase, we now look at the
+To study the effect of adding phosphatase, we look at the
 distribution of dephosphorylation events per agent in Figure~\ref{F1}.
 S45 is the first residue to be phosphorylated in the causal chain
 leading to degradation; S37 is the last. Based on the 1:1 system, is is surprising to
@@ -91,8 +91,8 @@ agents are getting dephosphorylated almost 800 times. It is worth noting
 these levels of dephosphorylation imply a comparable number of
 phosphorylation events.
 
-To answer the question that motivated this query, For S45 under 1:5 regime,
-most agents don’t get sabotaged by the phosphatase; the blue line is
+To answer the question that motivated this query, for S45 under 1:5 regime,
+most agents don’t get sabotaged by the phosphatase: the blue line is
 quite flat. Decreasing the amount of kinase changes this, and
 under a 1:1 regime some agents get undone multiple times, a quarter
 seeing upwards of hundreds of undo events (e.g. from id 300
@@ -112,7 +112,7 @@ enough to get dephosphorylated, as once it gets fully phosphorylated it
 quickly proceeds to get degraded).
 
 We call attention to the number of agents whose final sites got
-dephosphorylated (Figure~\ref{F1}), vs the number of agents who got
+dephosphorylated (Figure~\ref{F1}), vs. the number of agents who got
 degraded (Figure~\ref{F0}). The 1:5 or 1:1 systems both degraded over
 450 agents each, but the former undid around 160 agents (Figure~\ref{F1} S37, domain of blue curve) while the
 latter undid over 350 (Figure~\ref{F1} S37, domain of red curve). For the 1:5 and 5:1 systems, both undid around
@@ -129,7 +129,8 @@ throughput of the system.
     time an agent gets dephosphorylated, its ID is registered. After
     sorting, we plot the distribution of these IDs for two
     residues in the three parameter regimes. The area under the curve
-    is also presented on each legend.}
+    is also presented on each legend. S45 is the first residue to get
+		phosphorylated, S37 (along with S33) is the last.}
   \label{F1}
 \end{figure}
 
@@ -139,7 +140,7 @@ Looking at the distribution of wait times (Figure~\ref{F2}), from first phosphor
 to degradation, we note the bulk of degradation events occur rapidly,
 in less than $50$ seconds. Worth noting that, from the 1:1 regime,
 increasing the amount of kinase five fold marginally reduced wait
-times.
+times. In contrast, increasing the amount of phosphatase greatly reduced overall throughput.
 
 \begin{figure}[h]
   \centering
@@ -156,7 +157,7 @@ times.
 
 \subsubsection*{Complex composition}
 
-Another way of looking at the question of complex contribution
+A way of looking at the question of complex contribution
 is to query the size of the complex at the last phosphorylation event
 before degradation. Taking S45 as representative of all the other
 residues (see Figure~\ref{F11} for a residue comparative), we plot the
@@ -174,8 +175,8 @@ contrasting against the behavior of the other systems.
   \includegraphics[width=\columnwidth]{wnt/F6_complex_composition_final_S45.png}
   \caption{Composition of the complex, in terms of Axn and APC
     components, at the last event where Cat got S45 phosphorylated
-    before being degraded. The number of points is the number of
-    degradation events, per system. This scatter plot’s points have
+    before being degraded. The number of points corresponds to the number of
+    degradation events. This scatter plot’s points have
     been nudged with a random noise factor of 0.2 to increase visual
     perception of discrete points where the data overlap.}
   \label{F6}
@@ -186,7 +187,7 @@ contrasting against the behavior of the other systems.
 
 \begin{enumerate}
 \item The number of undo events does not inform us of overall
-  throughput (Figure~\ref{F0} and Figure~\ref{F1}).
+  throughput (contrast Figure~\ref{F1} and Figure~\ref{F0}).
 \item How a step may be affected by changing abundances depends
   greatly on its upstream context (Figure~\ref{F1}).
 \item Entities that got degraded waited a short while since their
