@@ -53,7 +53,7 @@
 
 Rule-based modeling languages such as Kappa \cite{DanosEtAl-CONCUR07}
 and BioNetGen \cite{bngl} can be used to write mechanistic models of
-complex reaction systems. Models in these languages consist in
+complex reaction systems. Models in these languages consist of
 stochastic graph-rewriting rules that are equipped with rate constants
 indicating their propensity to apply. Together with an initial mixture
 graph, these rules constitute a dynamical system that can be simulated
@@ -70,7 +70,7 @@ provide useful insights into a system's dynamics. For example, causal
 analysis methods exist
 \cite{DanosEtAl-CONCUR07,DBLP:conf/fsttcs/DanosFFHH12} that compress a
 large trace into a minimal subset of events that are necessary and
-jointly sufficient to replicate an ouctome of interest, and then
+jointly sufficient to replicate an outcome of interest, and then
 highlight causal influences between those remaining events.
 % Ideally, such techniques provide a way to uncover signalling
 % pathways from networks of low-level protein-protein interactions
@@ -142,7 +142,7 @@ phosphorylation states.
 By playing with this model a bit, one may notice that the
 concentration of phosphorylated substrate reaches its maximal value
 faster when the ratio of phosphorylated kinases is high (given the
-rules of our model, the latter quantity is invariant during
+rules of our model, the latter quantity is invariant during the
 simulation). This phenomenon cannot be explained by looking at rule
 $p$ alone. The query provided in~(\ref{eq:exq1}) can be run to
 estimate the probability that a substrate is bound to a phosphorylated
@@ -293,8 +293,8 @@ algorithm relies on this property.
 
 \subsection{Expression Language}\label{subsec:expr-language}
 
-We show Figure~\ref{fig:expressions} the syntax of our expression
-language. An expression can consist in an agent variable, a constant,
+We show in Figure~\ref{fig:expressions} the syntax of our expression
+language. An expression can consist of an agent variable, a constant,
 a parenthesized expression, a binary operation, a
 function\footnote{Note that functions always take a single argument,
   which can be a tuple.} of an expression, a tuple of expressions or a
@@ -449,8 +449,8 @@ attempts to match the root variable of the pattern to every transition
 in the trace. For each candidate matching, it uses rigidity to
 determine all other variables progressively as the trace is streamed,
 in an order that is determined by the dependency tree and with a
-minimal amount of caching. Overall, the algorithm runs in time linear
-in the length of the trace.
+minimal amount of caching. Overall, the algorithm runs in linear time 
+with the length of the trace.
 
 
 \subsection{Our Implementation}
