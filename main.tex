@@ -17,7 +17,7 @@
 
 \title{A Trace Query Language for Kappa}
 
-%\author{Jonathan Laurent\inst{1}, Hector F Medina-Abarca\inst{2}, \and Jean Yang\inst{1,2}}
+%\author{Jonathan Laurent\inst{1} \and Jean Yang\inst{1,2}}
 \author{Anonymous Authors}
 
 %\authorrunning{Jonathan Laurent et al.}
@@ -394,8 +394,10 @@ Finally, regular queries are defined as expected.
   A query is said to be \emph{regular} if its pattern is regular.
 \end{definition}
 This notion of regularity may appear unintuitive at first, and we
-agree that its formal definition is somewhat involved. In practice
-though, they should be recognized instinctively by experimentalists
+agree that its formal definition is somewhat involved. However, we
+argue that regular queries are exactly those queries that admit a
+natural operational interpretation. Therefore, experimentalists
+tend to think in terms of regular queries instinctively.
 
 % More precisely, the root of the dependency tree of a regular pattern
 % is a root variable, in the sense of
@@ -484,13 +486,6 @@ queries operationally.
 \newpage
 
 \section{Conclusion}
-
-How could one have explored a question like ``which complexes contribute to kinetics''? Experimental biologists have been using labeling techniques for decades, but implementing this in a modeling framework requires being able to track individual agents, and query particular events. Implementing a framework to query events on the trace of an agent \& rule simulation seems a natural way of tackling these classes of problems.
-
-Moreover, once a sufficiently rich \emph{mechanistic} model is available, questions on \emph{mechanism} arise. For a subset of these, a satisfying answer will require a change of vocabulary; the explanations desired use the individual's lexicon (e.g. it bound, it unbound, it got dephosphorylated 800 times), rather than a whole system lexicon (e.g. the abundance changed from 500 to 50).
-
-Thus, rather than tracking the whole model's behavior (akin to a top-down approach), one needs to focus on agents, and observe their individual experiences (akin to a bottom-up approach). These approaches are complementary, as they explore a model's intricacies from very different viewpoints.
-
 
 % Interaction with causal analysis Insist on the clean semantics
 % foundations Natural queries are natural
