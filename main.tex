@@ -393,8 +393,9 @@ Finally, regular queries are defined as expected.
 \begin{definition}
   A query is said to be \emph{regular} if its pattern is regular.
 \end{definition}
-
-
+This notion of regularity may appear unintuitive at first, and we
+agree that its formal definition is somewhat involved. In practice
+though, they should be recognized instinctively by experimentalists
 
 % More precisely, the root of the dependency tree of a regular pattern
 % is a root variable, in the sense of
@@ -448,28 +449,39 @@ query, in comma-separated values (CSV) format.\footnote{Every line of
   language, values are tuples of \emph{base values}. These are
   separated by commas within a line.}
 
-%Queries that are ``structurally'' non-regular for structural reasons
+Queries that are non-regular for structural reasons -- i.e. that fail to
+meet criterion (\ref{reg:tree}) or (\ref{reg:well-captured}) of
+Definition~\ref{def:regularity} -- are rejected immediately.  As there
+is no easy static check for local rigidity, 
+%-- criterion (\ref{reg:locally-rigid}) -- 
+queries that do not meet this criterion may be rejected at runtime. 
+% In both cases, informative error messages are generated.
+
+
+
 
 \iffalse
-The regularity requirement may seem restrictive. However, the first
-users of our query engine never expressed any frustration due to the
-regularity requirement, despite not being aware of this limitation:
-they naturally came up with regular queries
+However, the first users of our query engine never expressed any
+frustration with it, as they naturally came up with regular queries
 only.\footnote{Furthermore, they would also write the clauses of their
   patterns in an order that reflects their dependency trees.}  In our
 opinion, this is due to the difficulty of interpreting non-regular
 queries operationally.
 \fi
 
+
 %We provide an implementation
 
 % How non regular are rejected ?
 % CSV
 
+\newpage 
 
-%\input{use-case.tex}
+\input{use-case.tex}
 
 % Say a few words about the speed of the implementation
+
+\newpage
 
 \section{Conclusion}
 
@@ -488,8 +500,6 @@ queries operationally.
 \newpage
 
 \appendix
-
-\input{use-case-appendix.tex}
 
 %\input{algo.tex}
 
