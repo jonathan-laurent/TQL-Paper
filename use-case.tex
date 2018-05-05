@@ -1,4 +1,4 @@
-\section{A Use Case on Wnt Signaling}
+\section{A Use Case on Wnt Signaling}\label{sec:use-case}
 
 
 \subsection{Motivation and Problem Statement}
@@ -11,7 +11,7 @@ the dorso-ventral axis. It is also heavily involved in colon cancer.
 
 A source of complexity in our model is the fact that none of the
 enzymes involved in destroying $\beta$-catenin bind it directly.
-Instead they are loaded onto a scaffold. Moreover, the scaffold can 
+Instead they are loaded onto a scaffold. Moreover, the scaffold can
 head-to-tail homopolymerize, in addition to having three independent
 binding sites on a second scaffold, itself capable of dimerization.
 This allows a highly degenerate complex of scaffolds, where connection
@@ -31,14 +31,16 @@ the same complex will result in unimolecular do-undo loops. Conceivably
 the kinetics of complexes will vary heavily with the amount of kinases,
 phosphatases, and substrates loaded onto them.
 
-We developed queries to probe the agent-centric dephosphorylation
-dynamics, to measure the time it takes for an agent to navigate the 
-modification steps, and to explore the complexes at which events happen.
+We leverage our trace query engine to explore the dynamics of this
+system. More precisely, we develop queries to probe the agent-centric
+dephosphorylation dynamics, to measure the time it takes for an agent
+to navigate the modification steps, and to explore the complexes at
+which events happen.
 
 
 \subsection{Experimental Protocol and Queries}
 
-To explore this system, we create a Kappa model with three
+To explore our system, we create a Kappa model with three
 parametrizations. The model contains the scaffold proteins Axin1 (Axn)
 and APC, the kinases CK1$\alpha$ (CK1) and GSK3$\beta$ (GSK), the
 protein phosphatases PP1 and PP2, and the substrate of all these
@@ -63,36 +65,37 @@ amount of Cat of 500 agents, and the models are simulated for 500
 simulated seconds. We use a universal stochastic bi-molecular binding
 rate of $10^{-4}$ per second per agent, a uni-molecular binding rate
 of $10^{-2}$ per second, an unbinding rate of $10^{-2}$ per second,
-and a catalytic rate of $1.0$ per second. 
+and a catalytic rate of $1.0$ per second.
 
 For all three parametrizations, we run the following queries on the
 resulting traces.
 
 \input{wnt-query}
 
+
 \subsection{Results and Interpretation}
 
 \subsubsection*{Distribution of undo events per agent}
 
-To study the effect of adding phosphatase, we look at the
-distribution of dephosphorylation events per agent in Figure~\ref{F1}.
-S45 is the first residue to be phosphorylated in the causal chain
-leading to degradation; S37 is the last. Based on the 1:1 system, is is surprising to
-see increasing the phosphatase level five fold maintains a similar
-total number of dephosphorylation events (compare curves’ integrals).
-However, their distribution is quite different.
-Interestingly, increasing the amount of kinase to 1:5 led to decrease
-in dephosphorylation events, even though the dephosphorylation enzyme's
-abundance and rates were kept at the same levels.
-It is also worth noting, the 1:1 saw almost 30 thousand dephosphorylation
-events of S45, occurring on a shrinking pool of at most 500 copies of Cat.
+To study the effect of adding phosphatase, we look at the distribution
+of dephosphorylation events per agent in Figure~\ref{F1}.  S45 is the
+first residue to be phosphorylated in the causal chain leading to
+degradation; S37 is the last. Based on the 1:1 system, it is surprising
+to see increasing the phosphatase level five-fold maintains a similar
+total number of dephosphorylation events (compare curves' integrals).
+However, their distribution is quite different.  Interestingly,
+increasing the amount of kinase to 1:5 led to decrease in
+dephosphorylation events, even though the dephosphorylation enzyme's
+abundance and rates were kept at the same levels.  It is also worth
+noting, the 1:1 saw almost 30 thousand dephosphorylation events of
+S45, occurring on a shrinking pool of at most 500 copies of Cat.
 Clearly certain agents are caught in the do-undo loop; some specific
-agents are getting dephosphorylated almost 800 times. It is worth noting
-these levels of dephosphorylation imply a comparable number of
+agents are getting dephosphorylated almost 800 times. It is worth
+noting these levels of dephosphorylation imply a comparable number of
 phosphorylation events.
 
 To answer the question that motivated this query, for S45 under 1:5 regime,
-most agents don’t get sabotaged by the phosphatase: the blue line is
+most agents don't get sabotaged by the phosphatase: the blue line is
 quite flat. Decreasing the amount of kinase changes this, and
 under a 1:1 regime some agents get undone multiple times, a quarter
 seeing upwards of hundreds of undo events (e.g. from id 300
@@ -101,25 +104,28 @@ exacerbates this, with over half the agents receiving undo events
 hundreds of times. The unavailability of phosphorylated S45 in turn
 inhibits the phosphorylation of T41, and so forth to S37 and S33. It
 is worth noting that, based on the 1:1 system, \emph{increasing} the
-phosphatase five fold \emph{decreases} the number and extend of advanced
+phosphatase five-fold \emph{decreases} the number and extent of advanced
 dephosphorylation events, such as S33 and S37. Paradoxically,
-increasing the kinase five fold has this same effect. We attribute the
+increasing the kinase five-fold has this same effect. We attribute the
 former to decreased availability of the intermediate phosphorylated
-states (i.e. if T41 is not phosphorylated, S37 can’t be
-phosphorylated, ergo can’t be dephosphorylated), and the latter to
+states (i.e. if T41 is not phosphorylated, S37 can't be
+phosphorylated, ergo can't be dephosphorylated), and the latter to
 increased throughput to degradation (i.e. Cat is not around for long
 enough to get dephosphorylated, as once it gets fully phosphorylated it
 quickly proceeds to get degraded).
 
 We call attention to the number of agents whose final sites got
 dephosphorylated (Figure~\ref{F1}), vs. the number of agents who got
-degraded (Figure~\ref{F0}). The 1:5 or 1:1 systems both degraded over
-450 agents each, but the former undid around 160 agents (Figure~\ref{F1} S37, domain of blue curve) while the
-latter undid over 350 (Figure~\ref{F1} S37, domain of red curve). For the 1:5 and 5:1 systems, both undid around
-160 agents (Figure~\ref{F1} S37, domain of blue and yellow curves), but the former degraded over 450 agents (Figure~\ref{F0}, blue curve) while the latter
-less than 50 (Figure~\ref{F0}, yellow curve). This argues the notion of efficiency (e.g. minimizing
-the amount of undo steps) can’t readily be inferred from the
-throughput of the system.
+degraded (Figure~\ref{F0}, in Appendix~\ref{ap:use-case}). The 1:5 or
+1:1 systems both degraded over 450 agents each, but the former undid
+around 160 agents (Figure~\ref{F1} S37, domain of blue curve) while
+the latter undid over 350 (Figure~\ref{F1} S37, domain of red
+curve). For the 1:5 and 5:1 systems, both undid around 160 agents
+(Figure~\ref{F1} S37, domain of blue and yellow curves), but the
+former degraded over 450 agents (Figure~\ref{F0}, blue curve) while
+the latter less than 50 (Figure~\ref{F0}, yellow curve). This argues
+the notion of efficiency (e.g. minimizing the amount of undo steps)
+can't readily be inferred from the throughput of the system.
 
 
 \begin{figure}[h]
@@ -127,48 +133,51 @@ throughput of the system.
   \includegraphics[width=\columnwidth]{wnt/F1_distribution_dephosphorylations_per_agent_brief.png}
   \caption{Distribution of dephosphorylation events per agent. Each
     time an agent gets dephosphorylated, its ID is registered. After
-    sorting, we plot the distribution of these IDs for two
-    residues in the three parameter regimes. The area under the curve
-    is also presented on each legend. S45 is the first residue to get
-		phosphorylated, S37 (along with S33) is the last.}
+    sorting, we plot the distribution of these IDs for two residues in
+    the three parameter regimes. The area under the curve is also
+    presented on each legend. S45 is the first residue to get
+    phosphorylated, S37 (along with S33) is the last.}
   \label{F1}
 \end{figure}
 
 
 \subsubsection*{Wait times}
-Looking at the distribution of wait times (Figure~\ref{F2}), from first phosphorylation
-to degradation, we note the bulk of degradation events occur rapidly,
-in less than $50$ seconds. Worth noting that, from the 1:1 regime,
-increasing the amount of kinase five fold marginally reduced wait
-times. In contrast, increasing the amount of phosphatase greatly reduced overall throughput.
+Looking at the distribution of wait times (Figure~\ref{F2}), from
+first phosphorylation to degradation, we note the bulk of degradation
+events occur rapidly, in less than $50$ seconds. Worth noting that,
+from the 1:1 regime, increasing the amount of kinase five-fold
+marginally reduced wait times. In contrast, increasing the amount of
+phosphatase greatly reduced overall throughput.
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{wnt/F2_wait_times.png}
   \caption{Distribution of wait times from first phosphorylation until
-    degradation. The sum of the bins is presented in the legend of each
-    plot, and corresponds to the total number of degradation events, matching
-		what is seen on Figure~\ref{F0}. The height of each bin represents the
-		number of agents that waited the bin's position (in seconds)
-		since they were first modified until they were degraded.}
+    degradation. The sum of the bins is presented in the legend of
+    each plot, and corresponds to the total number of degradation
+    events, matching what is seen on Figure~\ref{F0}. The height of
+    each bin represents the number of agents that waited the bin's
+    position (in seconds) since they were first modified until they
+    were degraded.}
   \label{F2}
 \end{figure}
 
 
 \subsubsection*{Complex composition}
 
-A way of looking at the question of complex contribution
-is to query the size of the complex at the last phosphorylation event
-before degradation. Taking S45 as representative of all the other
-residues (see Figure~\ref{F11} for a residue comparative), we plot the
-size of the complex, in terms of Axn and APC, at the time the final S45 occured.
-Overall, we see a broad distribution of sizes, with a some phosphorylation
-events occurring in large complexes (i.e. $>80$ Axn, $>40$ APC), but
-a significant number occurring in far smaller complexes (i.e. $<10$
-Axn, $<10$ APC). Changing the parameter regime of kinase to phosphatase
-does not seem to alter this behavior significantly, though for the 1:5
-system the number of events is low enough that it is difficult
-contrasting against the behavior of the other systems.
+A way of looking at the question of complex contribution is to query
+the size of the complex at the last phosphorylation event before
+degradation. Taking S45 as representative of all the other residues
+(see Figure~\ref{F11} in Appendix~\ref{ap:use-case} for a residue comparative),
+we plot the size of the complex, in terms of Axn and APC, at the time
+the final S45 occured.  Overall, we see a broad distribution of sizes,
+with some phosphorylation events occurring in large complexes
+(i.e. $>80$ Axn, $>40$ APC), but a significant number occurring in far
+smaller complexes (i.e. $<10$ Axn, $<10$ APC). Changing the parameter
+regime of kinase to phosphatase does not seem to alter this behavior
+significantly, though for the 1:5 system the number of events is low
+enough that it is difficult contrasting against the behavior of the
+other systems.
 
 \begin{figure}[h]
   \centering
@@ -176,14 +185,14 @@ contrasting against the behavior of the other systems.
   \caption{Composition of the complex, in terms of Axn and APC
     components, at the last event where Cat got S45 phosphorylated
     before being degraded. The number of points corresponds to the number of
-    degradation events. This scatter plot’s points have
+    degradation events. The points of this scatter plot have
     been nudged with a random noise factor of 0.2 to increase visual
     perception of discrete points where the data overlap.}
   \label{F6}
 \end{figure}
 
 
-\subsection{Conclusions}
+\subsection{Summary of Findings}
 
 \begin{enumerate}
 \item The number of undo events does not inform us of overall
@@ -193,7 +202,7 @@ contrasting against the behavior of the other systems.
 \item Entities that got degraded waited a short while since their
   first modification (Figure~\ref{F2}), and yet most modifications
   were futile (Figure~\ref{F1}).
-\item We can’t argue that giant complexes, nor small complexes, nor
+\item We can't argue that giant complexes, nor small complexes, nor
   medium complexes, are the sole entities responsible for performing
   the effective (i.e. final) phosphorylation events  (Figure~\ref{F6}); %F6-9
   the distribution of complexes is wide, and they all contribute to

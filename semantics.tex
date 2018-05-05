@@ -13,11 +13,11 @@
     \m{pattern} & \TracePat & := & C
     & & \Sem{\TracePat} \in \Trace \to \Set{\Matching} \\
     &  & | &  C \,\textsf{and}\, C \\
-    \m{clause} & C & := & e:\TransPat
+    \m{clause} & C & := & t:\TransPat
      &  & \Sem{C} \in \Trace \to \Set{\Matching} \\
-     &  & | & \FirstAfter{e:\TransPat}{e'} \\
-     &  & | & \LastBefore{e:\TransPat}{e'} \\
-    \m{event pattern} &  \TransPat & := & \cdots  %\{ M \} \ \textsf{with} \ E
+     &  & | & \FirstAfter{t:\TransPat}{t'} \\
+     &  & | & \LastBefore{t:\TransPat}{t'} \\
+    \m{transition pat.} &  \TransPat & := & \cdots  %\{ M \} \ \textsf{with} \ E
      & & \Sem{\TransPat} \in \Transition \to \Set{\Matching_{\Ag}}  \\
     \m{expression} & E & := & \cdots
      & & \Sem{E} \in \Trace \times \Matching \to \Value \\
@@ -32,24 +32,26 @@
      % \Sem{C}(\tau) & = & \Sem{C}(\tau) \\
      \Sem{C \m{ and } C'}(\tau) & = & 
      \Sem{C}(\tau) \Inter \Sem{C'}(\tau) \\
-     \Sem{ e : P }(\tau) & = & 
-     \SetC{\phi}{\phi_{\Ag} \in \Sem{P}(\At{\tau}{\phi_{\Tr}(e)})} \\
+     \Sem{ t : T }(\tau) & = & 
+     \SetC{\phi}{\phi_{\Ag} \in \Sem{T}(\At{\tau}{\phi_{\Tr}(t)})} \\
   \end{array}
 \end{equation*}
 \smallskip
 \[
- \Sem{ \FirstAfter{e:\TransPat}{e'} }(\tau)  \ = \  
-     \LargeMultilineSetC{\phi}{ 
-       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(e)}) \,,}{
-       \forall i. \ \phi_{\Tr}(e') < i < \phi_{\Tr}(e) \implies
+ \Sem{ \FirstAfter{t:\TransPat}{t'} }(\tau)  \ = \  
+     \LargeMultilineSetC{\phi}{
+       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(t)}) \,,\ 
+         \, \phi_{\Tr}(t') < \phi_{\Tr}(t) \,, }{
+       \forall i. \ \phi_{\Tr}(t') < i < \phi_{\Tr}(t) \implies
        \phi_{\Ag} \notin \Sem{\TransPat}(\At{\tau}{i})
      }
 \]
 \[
- \Sem{ \LastBefore{e:\TransPat}{e'} }(\tau)  \ = \
-     \LargeMultilineSetC{\phi}{ 
-       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(e)}) \,,}{
-       \forall i. \ \phi_{\Tr}(e) < i < \phi_{\Tr}(e') \implies
+ \Sem{ \LastBefore{t:\TransPat}{t'} }(\tau)  \ = \
+     \LargeMultilineSetC{\phi}{
+       \phi_{\Ag} \in \Sem{\TransPat}(\At{\tau}{\phi_{\Tr}(t)}) \,,\ 
+       \, \phi_{\Tr}(t) < \phi_{\Tr}(t') \,, }{
+       \forall i. \ \phi_{\Tr}(t) < i < \phi_{\Tr}(t') \implies
        \phi_{\Ag} \notin \Sem{\TransPat}(\At{\tau}{i})
      }
 \]
