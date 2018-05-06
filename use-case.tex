@@ -11,7 +11,7 @@ enzymes involved in destroying $\beta$-catenin bind it directly.
 Instead they are loaded onto a scaffold. Moreover, the scaffold can
 head-to-tail homopolymerize, in addition to having three independent
 binding sites on a second scaffold, itself capable of dimerization.
-This allows a highly degenerate complex of scaffolds, where connection
+This allows a complex of scaffolds, where connection
 paths or stoichiometries are dynamic. It is this complex that acts as a
 super-scaffold to bring the substrate in contact with the
 enzymes. Considering both scaffolds contain large regions of disorder
@@ -22,17 +22,20 @@ evidence to suggest a ballpark limit for this reachable horizon, we
 leave it unconstrained: an enzyme will be able to modify any substrate
 loaded onto its complex.
 
-Additionally, having kinases (i.e. enzymes that add a phosphate group)
+Another source of complexity is that having kinases (i.e. enzymes that add a phosphate group)
 and phosphatases (i.e. enzymes that remove a phosphate group) loaded on
 the same complex will result in unimolecular do-undo loops. Conceivably
 the kinetics of complexes will vary heavily with the amount of kinases,
-phosphatases, and substrates loaded onto them.
+phosphatases, and substrates loaded onto them. These are all dynamic
+properties.
 
 We leverage our trace query engine to explore the dynamics of this
 system. More precisely, we develop queries to probe the agent-centric
 dephosphorylation dynamics, to measure the time it takes for an agent
 to navigate the modification steps, and to explore the complexes at
-which events happen.
+which events happen. Our results are relevant to other pathways in
+addition to Wnt, from NF$\kappa$B to RAS/ERK to the most studied
+protein on the world, P53; the pathways these proteins regulate make heavy use of polymeric scaffold complexes, sequential modifications, and do-undo loops.
 
 
 \subsection{Experimental Protocol and Queries}
@@ -51,18 +54,15 @@ undoes the phosphorylations of CK1, while PP2 undoes those of GSK. Each
 kinase-phosphatase pair also compete against each other for binding sites
 on Axn.
 
-The three parametrizations are meant to explore the relationship
+The three parametrizations explore the relationship
 between phosphatase/kinase ratio and the distribution of do-undo
-events per agent. The three parameter pairs are 50/10, 10/10, and
-10/50, all in units of number of agents, for the number of kinases and
+events. The three parameter pairs are 50/10, 10/10, and
+10/50, all in units of number of agents, and represent the number of kinases and
 phosphatases in the model (e.g. 10/50 presents 10 copies of PP1, 10
 copies of PP2, 50 copies of CK1, and 50 copies of GSK). The scaffolds
 remain at an abundance of 100 each. The models begin with an initial
-amount of Cat of 500 agents, and the models are simulated for 500
-simulated seconds. We use a universal stochastic bi-molecular binding
-rate of $10^{-4}$ per second per agent, a uni-molecular binding rate
-of $10^{-2}$ per second, an unbinding rate of $10^{-2}$ per second,
-and a catalytic rate of $1.0$ per second.
+amount of Cat of 500 agents, and the models are run for 500
+simulated seconds. We use global stochastic rates for our reactions, a bi-molecular binding of $10^{-4}$ per second per agent, a uni-molecular binding of $10^{-2}$ per second, an unbinding of $10^{-2}$ per second, and a catalytic of $1.0$ per second.
 
 For all three parametrizations, we run the following queries on the
 resulting traces.
@@ -75,15 +75,15 @@ resulting traces.
 \subsubsection*{Distribution of undo events per agent}
 
 To study the effect of adding phosphatase, we look at the distribution
-of dephosphorylation events per agent in Figure~\ref{F1}.  S45 is the
-first residue to be phosphorylated in the causal chain leading to
+of dephosphorylation events per agent in Figure~\ref{F1}. S45 is the
+first residue to be modified in the causal chain leading to
 degradation; S37 is the last. Based on the 1:1 system, it is surprising
 to see increasing the phosphatase level five-fold maintains a similar
 total number of dephosphorylation events (compare curves' integrals).
-However, their distribution is quite different.  Interestingly,
+However, their distribution is quite different. Interestingly,
 increasing the amount of kinase to 1:5 led to decrease in
 dephosphorylation events, even though the dephosphorylation enzyme's
-abundance and rates were kept at the same levels.  It is also worth
+abundance and rates were kept at the same levels. It is also worth
 noting, the 1:1 saw almost 30 thousand dephosphorylation events of
 S45, occurring on a shrinking pool of at most 500 copies of Cat.
 Clearly certain agents are caught in the do-undo loop; some specific
@@ -143,8 +143,7 @@ Looking at the distribution of wait times (Figure~\ref{F2}), from
 first phosphorylation to degradation, we note the bulk of degradation
 events occur rapidly, in less than $50$ seconds. Worth noting that,
 from the 1:1 regime, increasing the amount of kinase five-fold
-marginally reduced wait times. In contrast, increasing the amount of
-phosphatase greatly reduced overall throughput.
+marginally reduced wait times.
 
 \begin{figure}[h]
   \centering
@@ -167,14 +166,12 @@ the size of the complex at the last phosphorylation event before
 degradation. Taking S45 as representative of all the other residues
 (see Figure~\ref{F11} in Appendix~\ref{ap:use-case} for a residue comparative),
 we plot the size of the complex, in terms of Axn and APC, at the time
-the final S45 occured.  Overall, we see a broad distribution of sizes,
+the final S45 occurred. Overall, we see a broad distribution of sizes,
 with some phosphorylation events occurring in large complexes
 (i.e. $>80$ Axn, $>40$ APC), but a significant number occurring in far
 smaller complexes (i.e. $<10$ Axn, $<10$ APC). Changing the parameter
 regime of kinase to phosphatase does not seem to alter this behavior
-significantly, though for the 1:5 system the number of events is low
-enough that it is difficult contrasting against the behavior of the
-other systems.
+significantly.
 
 \begin{figure}[h]
   \centering
@@ -205,3 +202,7 @@ other systems.
   the distribution of complexes is wide, and they all contribute to
   the kinetics.
 \end{enumerate}
+
+The capacity of querying a simulation's trace offers a mechanistic description of the inner workings of our system. Since this description uses the vocabulary of molecular biology, it can greatly inform the search for drug targets. 
+
+For example, in our setup, complexes with over 60 copies of Axn and over 40 copies of APC contributed a large amount of degradation events (Figure~\ref{F6}). Considering there were a total of 100 copies of each scaffold, these large complexes are giant components, having recruited the majority of scaffolds into a single entity. If a single entity is contributing an amount of degradation events comparable to the rest of the mixture, it means its \emph{effective} catalytic rate is greater than that of smaller entities. One could therefore reduce overall degradation of Cat by destabilizing any of the three scaffold interactions (i.e. Axn-Axn, APC-APC, Axn-APC), without affecting the enzymes directly. Since these enzymes are also involved in metabolism, it would be desirable to avoid affecting their behaviors outside our pathway of interest.
