@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{paralist}
 \usepackage{multicol}
+
 \usepackage{subcaption}
 
 \input{macros.tex}
@@ -17,14 +18,16 @@
 
 \title{A Trace Query Language for Rule-based Models}
 
-% \author{Jonathan Laurent\inst{1} \and Jean Yang\inst{1,2}}
-\author{Anonymous Authors}
+\author{Jonathan Laurent\inst{1}, Hector F. Medina-Abarca\inst{2},
+Pierre Boutillier\inst{2},
+Jean Yang\inst{1} and Walter Fontana\inst{2}}
+%\author{Anonymous Authors}
 
-% \authorrunning{Jonathan Laurent et al.}
-\authorrunning{Anonymous Authors}
+\authorrunning{Jonathan Laurent et al.}
+%\authorrunning{Anonymous Authors}
 
 
-% \institute{Carnegie Mellon University \and Harvard Medical School}\\
+\institute{Carnegie Mellon University \and Harvard Medical School}
 
 \maketitle
 
@@ -94,13 +97,13 @@ query comes down to computing the value of an expression for every
 matching of a pattern into a trace. We give a first illustration of
 this paradigm on a toy example in
 section~\ref{sec:starting-example}. After that, we introduce our query
-language in section~\ref{sec:semantics} and formalize its semantic
-foundations. We then characterize a natural subset of this language
-for which an efficient evaluation algorithm exists and discuss our
+language in section~\ref{sec:semantics} and give it a formal
+semantics. We then characterize a natural subset of this language for
+which an efficient evaluation algorithm exists and discuss our
 implementation for the Kappa language
 (section~\ref{sec:evaluating-queries}). Finally, we leverage our query
-engine to explore aspects of the dynamics of the Wnt signaling
-pathway in a detailed use case (section~\ref{sec:use-case}).
+engine to explore aspects of the dynamics of the Wnt signaling pathway
+in a detailed use case (section~\ref{sec:use-case}).
 
 % formalize the semantics principle underlying our query language in
 % \ref{sec:semantics}.  We
@@ -267,7 +270,7 @@ we say that $t$ is \emph{constrained} by the clause.
 \subsection{Transition Patterns}\label{subsec:tpats-language}
 
 A transition pattern can be thought as a predicate that takes as its
-argument a pair $(\tau, \phi_{\Ag})$ of a transition and an agent
+argument a pair $(t, \phi_{\Ag})$ of a transition and an agent
 matching. Our current implementation supports specifying transition
 patterns using KaSim's \emph{edit notation}. Transition patterns
 defined this way are enclosed within curly brackets.  For example, in
@@ -364,7 +367,7 @@ implied by a weaker notion of \emph{local rigidity}.
   Given a Kappa model, a transition pattern $T$ is said to be
   \emph{rigid} if and only if for any agent variable $a$ that appears
   in $T$ and every valid transition $t$, we have
-  \[ \forall\, \phi_{\Ag}\,, \phi_{\Ag}' \in \Sem{T}, \ \phi_{\Ag}(a)
+  \[ \forall\, \phi_{\Ag}\,, \phi_{\Ag}' \in \Sem{T}(t), \ \phi_{\Ag}(a)
     = \phi'_{\Ag}(a). \]
 \end{definition}
 Intuitively, a transition pattern is rigid if matching it to a
@@ -476,7 +479,7 @@ to meet criterion (\ref{reg:tree}) or (\ref{reg:well-captured}) of
 Definition~\ref{def:regularity} -- are rejected immediately.  As there
 is no easy static check for local rigidity,
 % -- criterion (\ref{reg:locally-rigid}) --
-queries that do not meet this criterion will be rejected at runtime.
+queries that do not meet this criterion are rejected at runtime.
 % In both cases, informative error messages are generated.
 
 \medskip
@@ -495,17 +498,9 @@ queries operationally.
 \fi
 
 
-%We provide an implementation
-
-% How non regular are rejected ?
-% CSV
-
-\newpage 
-
 \input{use-case.tex}
 
-% Say a few words about the speed of the implementation
-
+\input{related-works.tex}
 
 \input{conclusion.tex}
 
@@ -515,7 +510,6 @@ queries operationally.
 
 % \input{playground.tex}
 
-% Extensions and Future work
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ---- Bibliography ----
