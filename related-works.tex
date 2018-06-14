@@ -2,38 +2,40 @@
 
 Languages already exist to collect, filter and aggregate data from
 simulation. For example, the Kappa simulator \cite{BoutillierEK17}
-features an \emph{intervention language} that -- among other things --
-offers primitives to take repeated conditional measurements during
-simulation, possibly updating a global state every time. The Chromar
-\cite{honorato2017chromar} rule-based language proposes an
-\emph{extended language} with similar capabilities, where queries are
-written in a more functional style that is reminiscent of
-MapReduce. Finally, languages have been proposed
-\cite{helms2012toward,zehe2016online} to specify the same task in a
-fully declarative way, that are inspired by the {structured query
-  language} (\textsc{sql}).
+features an \emph{intervention language} that allows taking repeated
+conditional measurements during simulation, possibly updating a global
+state every time. Chromar \cite{honorato2017chromar} proposes an
+\emph{extended language} with similar capabilities, where queries can
+be defined in a more functional style from a selector and a fold
+operation. Finally, query languages have been proposed
+\cite{helms2012toward,zehe2016online} that are inspired by the
+{structured query language} (\textsc{SQL}).
 
 All these languages are similar in the sense that
 \begin{inparaenum}[(i)]
-\item queries select individual states or transitions and perform
-  an action on each of them
+\item queries can only evaluate expressions in the scope of a single
+state or transition and
 \item only population-level quantities can be measured.
 \end{inparaenum}
-In contrast, queries in our proposed language
-%\begin{inparaenum}[(i)]
-can select \emph{trace patterns} that consist in multiple related
-transitions acting on common agents and allow measuring and comparing
-the state of individual agents at different points in time. Therefore,
-most of the example queries shown in this paper could not be expressed
-using preexisting query languages.
+In contrast, queries in our proposed language can
+\begin{inparaenum}[(i)]
+\item match \emph{trace patterns} that consist in multiple transitions
+  acting on common agents and
+\item measure and compare the state of individual agents, possibly at
+  different points in time.
+\end{inparaenum}
+As a consequence, most of the example queries shown in this paper
+could not be expressed using preexisting query languages.
 
 Thanks to its ability to match complex trace patterns, our query
 language may be especially interesting to use in combination with
 causal analysis
 \cite{DanosEtAl-CONCUR07,DBLP:conf/fsttcs/DanosFFHH12}. Indeed, the
 pathways uncovered by causal analysis can be regarded as trace
-patterns and then matched using our query language. For example, query
+patterns and then matched using our query language. This may be useful
+to measure the relative frequency of pathways in different settings,
+but also to analyze how individual agents participating to a pathway
+evolve as this pathway unfolds. For example, query
 (\ref{query:cat-deg}) in section~\ref{sec:use-case} compares the
 composition of the complex at which $\beta$-catenin is attached at
 different points of the pathway leading to its degradation.
-

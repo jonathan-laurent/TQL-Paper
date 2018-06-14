@@ -22,20 +22,40 @@ evidence to suggest a ballpark limit for this reachable horizon, we
 leave it unconstrained: an enzyme will be able to modify any substrate
 loaded onto its complex.
 
-Another source of complexity is that having kinases (i.e. enzymes that add a phosphate group)
-and phosphatases (i.e. enzymes that remove a phosphate group) loaded on
-the same complex will result in unimolecular do-undo loops. Conceivably
-the kinetics of complexes will vary heavily with the amount of kinases,
-phosphatases, and substrates loaded onto them. These are all dynamic
-properties.
+Another source of complexity is that having kinases (i.e. enzymes that
+add a phosphate group) and phosphatases (i.e. enzymes that remove a
+phosphate group) loaded on the same complex will result in
+unimolecular do-undo loops. Conceivably the kinetics of complexes will
+vary heavily with the amount of kinases, phosphatases, and substrates
+loaded onto them. %These are all dynamic properties.
+
+\bigskip
 
 We leverage our trace query engine to explore the dynamics of this
 system. More precisely, we develop queries to probe the agent-centric
 dephosphorylation dynamics, to measure the time it takes for an agent
 to navigate the modification steps, and to explore the complexes at
-which events happen. Our results are relevant to other pathways in
-addition to Wnt, from NF$\kappa$B to RAS/ERK to the most studied
-protein on the world, P53; the pathways these proteins regulate make heavy use of polymeric scaffold complexes, sequential modifications, and do-undo loops.
+which events happen.
+
+Our approach adds an analytical dimension to the phase-transition
+model suggested by Pronobis et al \cite{pronobis2017reconstituting},
+as it allows us to quantify the degradation activity inside and
+outside the distinct phases by querying the size of the scaffold
+complex at the times of enzymatic modifications. Moreover, it also
+enables characterizing the \emph{aggregate-with-tentacles} model of
+Anvarian et al \cite{anvarian2016axin}. Indeed, by distinguishing
+bimolecular and unimolecular interactions, one can model the local
+concentration effect brought about by having many potential binding
+sites on the tentacles in close proximity. Then, one can quantify the
+change in average bond lifespan brought about by the gain-of-function
+mutation that constitutes an aggregon.
+
+Our results are relevant to other pathways in addition to Wnt, from
+NF$\kappa$B to RAS/ERK to the most studied protein on the world, P53;
+the pathways these proteins regulate make heavy use of polymeric
+scaffold complexes, sequential modifications, and do-undo loops.
+
+
 
 
 \subsection{Experimental Protocol and Queries}
