@@ -37,19 +37,6 @@ dephosphorylation dynamics, to measure the time it takes for an agent
 to navigate the modification steps, and to explore the complexes at
 which events happen.
 
-Our approach adds an analytical dimension to the phase-transition
-model suggested by Pronobis et al \cite{pronobis2017reconstituting},
-as it allows us to quantify the degradation activity inside and
-outside the distinct phases by querying the size of the scaffold
-complex at the times of enzymatic modifications. Moreover, it also
-enables characterizing the \emph{aggregate-with-tentacles} model of
-Anvarian et al \cite{anvarian2016axin}. Indeed, by distinguishing
-bimolecular and unimolecular interactions, one can model the local
-concentration effect brought about by having many potential binding
-sites on the tentacles in close proximity. Then, one can quantify the
-change in average bond lifespan brought about by the gain-of-function
-mutation that constitutes an aggregon.
-
 Our results are relevant to other pathways in addition to Wnt, from
 NF$\kappa$B to RAS/ERK to the most studied protein on the world, P53;
 the pathways these proteins regulate make heavy use of polymeric
@@ -226,3 +213,9 @@ significantly.
 The capacity of querying a simulation's trace offers a mechanistic description of the inner workings of our system. Since this description uses the vocabulary of molecular biology, it can greatly inform the search for drug targets. 
 
 For example, in our setup, complexes with over 60 copies of Axn and over 40 copies of APC contributed a large amount of degradation events (Figure~\ref{F6}). Considering there were a total of 100 copies of each scaffold, these large complexes are giant components, having recruited the majority of scaffolds into a single entity. If a single entity is contributing an amount of degradation events comparable to the rest of the mixture, it means its \emph{effective} catalytic rate is greater than that of smaller entities. One could therefore reduce overall degradation of Cat by destabilizing any of the three scaffold interactions (i.e. Axn-Axn, APC-APC, Axn-APC), without affecting the enzymes directly. Since these enzymes are also involved in metabolism, it would be desirable to avoid affecting their behaviors outside our pathway of interest.
+
+\bigskip
+
+Beyond Wnt, our approach can serve to add an analytical dimension to the phase-transition model suggested by Pronobis et al \cite{pronobis2017reconstituting}. If the mixture transitions from an fragmented regime into an aggregated one, the aggregated regime is expected to enjoy greater local concentrations of enzymes and substrates within the large components. Through our trace query language, we can assay the size of components as they contribute catalytic events. This allows us to quantify the degradation activity inside and outside the distinct phases by querying the size of the scaffold complex at the times of enzymatic modifications. Were one to make a model of the specific setup and chimeric protein of Pronobis et al, we would expect the distribution of events to reveal the distinct phases suggested by the authors.
+
+Our trace query language could also aid in the characterization of the \emph{aggregate-with-tentacles} model of Anvarian et al \cite{anvarian2016axin}. The gain-of-function mutations identified by the authors create novel binding capacities. By distinguishing bi-molecular from uni-molecular interactions, one can model local concentration effects. Specifically, one can model the effect of having novel binding sites on the complex' \emph{tentacles}, in close proximity by nature of being loaded on the same complex. One can therefore model the growth of the complex as additional binding sites become active (e.g. by setting a binding rate to greater than zero). Were one to make a model informed by the specific experimental setup used by the authors, one could quantify the change in unbound state as additional binding sites become active.
